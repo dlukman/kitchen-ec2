@@ -55,6 +55,12 @@ module Kitchen
               availability_zone = "#{config[:region]}#{availability_zone}"
             end
             i[:placement] = { :availability_zone => availability_zone.downcase }
+          elsif config[:subnet_id]
+            # Get availability zone from subnet id
+            availability_zone = ::Aws::EC2::Client.new(region: config[:region]).describe_subnets(
+              subnet_ids: [config[:subnet_id]]
+            )[0][0].availability_zone
+            i[:placement] = { :availability_zone => availability_zone.downcase }
           end
           unless config[:block_device_mappings].nil? || config[:block_device_mappings].empty?
             i[:block_device_mappings] = config[:block_device_mappings]
